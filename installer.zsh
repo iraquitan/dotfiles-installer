@@ -6,6 +6,8 @@ autoload -Uz is-at-least; is-at-least
 
 typeset    TMPFILE="/tmp/.iraquitan-dotfiles-$$$RANDOM"
 typeset    XDG_DATA_HOME="$HOME/.local/share"
+typeset    XDG_CONFIG_HOME="$HOME/.config"
+typeset    YADM_HOME="$XDG_DATA_HOME/yadm_project"
 
 if [[ -z $ZSH_VERSION ]]; then
     printf "dotfiles requires zsh 4.1.9 or newer\n"
@@ -126,14 +128,11 @@ execute()
 
 yadm_check()
 {
-    printf "Testing OUTPUT" 2>/dev/null
-    if [[command -v yadm >/dev/null 2>&1]]; then
-        printf "Installing YADM to $YADM_DIR" 2>/dev/null
-        git clone https://github.com/TheLocehiliosan/yadm.git $YADM_DIR
-        ln -s $YADM_DIR/yadm /usr/local/bin/yadm
+    if ! (( $+commands[yadm] )); then
+        git clone https://github.com/TheLocehiliosan/yadm.git $YADM_HOME
+        ln -s $YADM_HOME/yadm /usr/local/bin/yadm
     else
-        printf "Updating YADM at $YADM_DIR" 2>/dev/null
-        cd $YADM_DIR
+        cd $YADM_HOME
         git pull
     fi 
 }
@@ -146,12 +145,28 @@ execute \
 
 execute \
     --title \
-    "Checking yadm installation" \
+    "Installing/Updating yadm" \
     --error \
     "Is git installed?" \
     --error \
+    "Does '$YADM_HOME' already exist?" \
+    yadm_check
+
+execute \
+    --title \
+    "Configuring dotfiles" \
+    --error \
+    "Is YADM installed?" \
+    --error \
     "Does '$YADM_DIR' already exist?" \
-    yadm_check \
+    "yadm -Y $YADM_DIR clone https://github.com/iraquitan/dotfiles.git --bootstrap"
+
+execute \
+    --title \
+    "Installing vim plugins with Vim Plug" \
+    --error \
+    "Is Vim Plug installed?" \
+    "vim +PlugInstall +qall"
 
 printf " All processes are successfully completed \U1F389\n"
 printf " For more information, see ${(%):-%U}https://github.com/iraquitan/dotfiles${(%):-%u} \U1F33A\n"
