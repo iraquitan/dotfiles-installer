@@ -4,15 +4,16 @@
 autoload -Uz colors; colors
 autoload -Uz is-at-least; is-at-least
 
-typeset    TMPFILE="/tmp/.zplug-$$$RANDOM"
+typeset    TMPFILE="/tmp/.iraquitan-dotfiles-$$$RANDOM"
+typeset    XDG_DATA_HOME="$HOME/.local/share"
 
 if [[ -z $ZSH_VERSION ]]; then
-    printf "zplug requires zsh 4.1.9 or newer\n"
+    printf "dotfiles requires zsh 4.1.9 or newer\n"
     exit 1
 fi
 
-if [[ -z $ZPLUG_HOME ]]; then
-    export ZPLUG_HOME=~/.zplug
+if [[ -z $YADM_DIR ]]; then
+    export YADM_DIR="$XDG_DATA_HOME/yadm"
 fi
 
 spin()
@@ -123,6 +124,20 @@ execute()
     fi
 }
 
+yadm_check()
+{
+    printf "Testing OUTPUT" 2>/dev/null
+    if [[command -v yadm >/dev/null 2>&1]]; then
+        printf "Installing YADM to $YADM_DIR" 2>/dev/null
+        git clone https://github.com/TheLocehiliosan/yadm.git $YADM_DIR
+        ln -s $YADM_DIR/yadm /usr/local/bin/yadm
+    else
+        printf "Updating YADM at $YADM_DIR" 2>/dev/null
+        cd $YADM_DIR
+        git pull
+    fi 
+}
+
 execute \
     --title \
     "Checking if your zsh version is newer than 4.1.9" \
@@ -131,15 +146,14 @@ execute \
 
 execute \
     --title \
-    "Installing zplug to $ZPLUG_HOME" \
+    "Checking yadm installation" \
     --error \
     "Is git installed?" \
     --error \
-    "Does '$ZPLUG_HOME' already exist?" \
-    "git clone https://github.com/zplug/zplug.git $ZPLUG_HOME"
-
+    "Does '$YADM_DIR' already exist?" \
+    yadm_check \
 
 printf " All processes are successfully completed \U1F389\n"
-printf " For more information, see ${(%):-%U}http://zplug.sh${(%):-%u} \U1F33A\n"
-printf " Enjoy zplug!\n"
+printf " For more information, see ${(%):-%U}https://github.com/iraquitan/dotfiles${(%):-%u} \U1F33A\n"
+printf " Enjoy the new dotfiles by @iraquitan!\n"
 
