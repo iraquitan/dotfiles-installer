@@ -1,14 +1,14 @@
-# The installer for [zplug](https://github.com/zplug)
+# The installer for [iraquitan/dotfiles](https://github.com/iraquitan/dotfiles)
 
-To install zplug to your system, run this command:
+To setup these dotfiles to your system, run this command:
 
 ```zsh
-$ curl -sL zplug.sh/installer | zsh
+$ curl -sL --proto-redir -all,https https://raw.githubusercontent.com/iraquitan/dotfiles-installer/master/installer.zsh | zsh
 ```
 
 **Things to do**
 
-- install zplug
+- install yadm
 - install zplug man page to `$MANPATH`
 - and so on
 
