@@ -205,7 +205,7 @@ execute \
     --title \
     "Checking if your zsh version is newer than 4.1.9" \
     --cursor \
-    0
+    0 \
     "sleep 1" \
     "is-at-least 4.1.9"
 
@@ -213,35 +213,35 @@ execute \
     --title \
     "Restoring .zshrc config" \
     --cursor \
-    1
+    1 \
     restore_zsh_config
 
 execute \
     --title \
     "Removing application config from $XDG_CONFIG_HOME" \
     --cursor \
-    0
+    0 \
     rm_config
 
 execute \
     --title \
     "Removing application data from $XDG_DATA_HOME" \
     --cursor \
-    0
+    0 \
     rm_share_data
 
 execute \
     --title \
     "Unlinking yadm from /usr/local/bin" \
     --cursor \
-    0
+    0 \
     unlink_yadm
 
 execute \
     --title \
     "Removing git submodules (.gitmodules) from $HOME" \
     --cursor \
-    0
+    0 \
     rm_gitmodules
 
 printf " All processes are successfully completed \U1F389\n"

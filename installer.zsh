@@ -171,7 +171,7 @@ execute \
     --title \
     "Checking if your zsh version is newer than 4.1.9" \
     --cursor \
-    0
+    0 \
     "sleep 1" \
     "is-at-least 4.1.9"
 
@@ -183,14 +183,14 @@ execute \
     --error \
     "Does '$YADM_HOME' already exist?" \
     --cursor \
-    0
+    0 \
     yadm_check
 
 execute \
     --title \
     "Backing up .zshrc config file" \
     --cursor \
-    0
+    0 \
     bkp_zshrc
 
 execute \
@@ -201,7 +201,7 @@ execute \
     --error \
     "Does '$YADM_DIR' already exist?" \
     --cursor \
-    0
+    0 \
     "yadm -Y $YADM_DIR clone https://github.com/iraquitan/dotfiles.git --bootstrap"
 
 execute \
@@ -210,14 +210,14 @@ execute \
     --error \
     "Is Vim Plug installed?" \
     --cursor \
-    0
+    0 \
     "vim +PlugInstall +qall"
 
 execute \
     --title \
     "Setting zsh as default shell" \
     --cursor \
-    1
+    1 \
     change_default_shell
 
 printf " All processes are successfully completed \U1F389\n"
