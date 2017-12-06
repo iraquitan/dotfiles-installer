@@ -22,13 +22,22 @@ spin()
 {
     local \
         before_msg="$1" \
-        after_msg="$2"
+        after_msg="$2" \
+        cursor="$3"
     local    spinner
     local -a spinners
     spinners=(⠋ ⠙ ⠹ ⠸ ⠼ ⠴ ⠦ ⠧ ⠇ ⠏)
 
+    # if [ "$3" != ""]; then
+    #     local cursor=
+    # fi
+
     # hide cursor
-    tput civis
+    if [[ $cursor -ne 0 ]]; then
+        tput cnorm || true
+    else
+        tput civis
+    fi
 
     while true
     do
@@ -82,6 +91,10 @@ execute()
                 errors+=( "$2" )
                 shift
                 ;;
+            --cursor)
+                cursor="$2"
+                shift
+                ;;
             -*|--*)
                 return 1
                 ;;
@@ -117,7 +130,8 @@ execute()
 
     spin \
         "$title" \
-        "$title [$fg[green]SUCCEEDED$reset_color]"
+        "$title [$fg[green]SUCCEEDED$reset_color]" \
+        "$cursor"
 
     if [[ $status -ne 0 ]]; then
 	printf "\033[2K" 2>/dev/null
@@ -126,79 +140,110 @@ execute()
     fi
 }
 
-yadm_check()
-{
-    if ! (( $+commands[yadm] )); then
-        git clone https://github.com/TheLocehiliosan/yadm.git $YADM_HOME
-        ln -s $YADM_HOME/yadm /usr/local/bin/yadm
-    else
-        cd $YADM_HOME
-        git pull
-    fi 
-}
-
-bkp_zshrc()
+restore_zsh_config()
 {
     echo "Looking for original zsh config..."
-    if [ -f $HOME/.zshrc ] || [ -h $HOME/.zshrc ]; then
-        echo "Found ~/.zshrc -- backing up to ~/.zshrc.pre-iraquitan";
-        mv $HOME/.zshrc $HOME/.zshrc.pre-iraquitan;
-        echo "Your original zsh config was backed to ~/.zshrc.pre-iraquitan."
+    if [ -f ~/.zshrc.pre-iraquitan ] || [ -h ~/.zshrc.pre-iraquitan ]; then
+        echo "Found ~/.zshrc.pre-iraquitan -- Restoring to ~/.zshrc";
+
+        if [ -f ~/.zshrc ] || [ -h ~/.zshrc ]; then
+            ZSHRC_SAVE=".zshrc.iraquitan-uninstalled-$(date +%Y%m%d%H%M%S)";
+            echo "Found ~/.zshrc -- Renaming to ~/${ZSHRC_SAVE}";
+            mv ~/.zshrc ~/"${ZSHRC_SAVE}";
+        fi
+
+        mv ~/.zshrc.pre-iraquitan ~/.zshrc;
+
+        echo "Your original zsh config was restored. Please restart your session."
+    else
+        if hash chsh >/dev/null 2>&1; then
+            echo "Switching back to bash"
+            chsh -s /bin/bash
+        else
+            echo "You can edit /etc/passwd to switch your default shell back to bash"
+        fi
     fi
 }
 
-change_default_shell()
+rm_config()
 {
-    if [! $0 = "-zsh"]; then
-        echo 'Changing default shell to zsh'
-        chsh -s /bin/zsh
-    else
-        echo 'Already using zsh'
-    fi
+    echo "Removing ~/.config dirs"
+    for c_dir in brew git motd tmux vim zsh
+    do
+        rm -rf $XDG_CONFIG_HOME/$c_dir
+    done
 }
+
+rm_share_data()
+{
+    echo "Removing ~/.local/share dirs"
+    for local_s in yadm yadm_project
+    do
+        rm -rf $XDG_DATA_HOME/$local_s
+    done
+}
+
+unlink_yadm()
+{
+    echo "Unlinking yadm form /usr/local/bin" 
+    rm -f -- /usr/local/bin/yadm
+}
+
+rm_gitmodules()
+{
+    echo "Removing .gitmodules" 
+    rm -f -- $HOME/.gitmodules
+}
+
+printf "Are you sure you want to remove iraquitan's dotfiles? [y/N] "
+    if ! read -q; then
+        echo "Uninstall cancelled"
+        exit
+    fi
 
 execute \
     --title \
     "Checking if your zsh version is newer than 4.1.9" \
+    --cursor \
+    0
     "sleep 1" \
     "is-at-least 4.1.9"
 
 execute \
     --title \
-    "Installing/Updating yadm" \
-    --error \
-    "Is git installed?" \
-    --error \
-    "Does '$YADM_HOME' already exist?" \
-    yadm_check
+    "Restoring .zshrc config" \
+    --cursor \
+    1
+    restore_zsh_config
 
 execute \
     --title \
-    "Backing up .zshrc config file" \
-    bkp_zshrc
+    "Removing application config from $XDG_CONFIG_HOME" \
+    --cursor \
+    0
+    rm_config
 
 execute \
     --title \
-    "Configuring dotfiles" \
-    --error \
-    "Is YADM installed?" \
-    --error \
-    "Does '$YADM_DIR' already exist?" \
-    "yadm -Y $YADM_DIR clone https://github.com/iraquitan/dotfiles.git --bootstrap"
+    "Removing application data from $XDG_DATA_HOME" \
+    --cursor \
+    0
+    rm_share_data
 
 execute \
     --title \
-    "Installing vim plugins with Vim Plug" \
-    --error \
-    "Is Vim Plug installed?" \
-    "vim +PlugInstall +qall"
+    "Unlinking yadm from /usr/local/bin" \
+    --cursor \
+    0
+    unlink_yadm
 
 execute \
     --title \
-    "Setting zsh as default shell" \
-    change_default_shell
+    "Removing git submodules (.gitmodules) from $HOME" \
+    --cursor \
+    0
+    rm_gitmodules
 
 printf " All processes are successfully completed \U1F389\n"
 printf " For more information, see ${(%):-%U}https://github.com/iraquitan/dotfiles${(%):-%u} \U1F33A\n"
-printf " Enjoy the new dotfiles by @iraquitan!\n"
-
+printf " Thanks for trying out dotfiles by @iraquitan. It's been uninstalled.\n"
