@@ -165,6 +165,19 @@ restore_zsh_config()
     fi
 }
 
+restore_git_config()
+{
+    for cf in .gitconfig .gitconfig_local .gitignore_global .gitmessage .gitmodules
+    do
+        echo "Looking for original git $cf..."
+        if [ -f $HOME/$cf.pre-iraquitan ] || [ -h $HOME/$cf.pre-iraquitan ]; then
+            echo "Found ~/$cf.pre-iraquitan -- restoring to ~/$cf";
+            mv $HOME/$cf.pre-iraquitan $HOME/$cf;
+            echo "Your original $cf file was restored."
+        fi
+    done
+}
+
 rm_config()
 {
     echo "Removing ~/.config dirs"
@@ -215,6 +228,13 @@ execute \
     --cursor \
     1 \
     restore_zsh_config
+
+execute \
+    --title \
+    "Restoring git config files" \
+    --cursor \
+    1 \
+    restore_git_config
 
 execute \
     --title \

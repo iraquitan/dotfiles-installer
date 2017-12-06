@@ -157,6 +157,19 @@ bkp_zshrc()
     fi
 }
 
+bkp_gitconfig()
+{
+    for cf in .gitconfig .gitconfig_local .gitignore_global .gitmessage .gitmodules
+    do
+        echo "Looking for original git $cf..."
+        if [ -f $HOME/$cf ] || [ -h $HOME/$cf ]; then
+            echo "Found ~/$cf -- backing up to ~/$cf.pre-iraquitan";
+            mv $HOME/$cf $HOME/$cf.pre-iraquitan;
+            echo "Your original $cf file was backed to ~/$cf.pre-iraquitan."
+        fi
+    done
+}
+
 change_default_shell()
 {
     if [ ! $0 = "-zsh" ]; then
@@ -192,6 +205,13 @@ execute \
     --cursor \
     0 \
     bkp_zshrc
+
+execute \
+    --title \
+    "Backing up git config files" \
+    --cursor \
+    0 \
+    bkp_gitconfig
 
 execute \
     --title \
