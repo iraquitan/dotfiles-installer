@@ -22,13 +22,18 @@ spin()
 {
     local \
         before_msg="$1" \
-        after_msg="$2"
+        after_msg="$2" \
+        cursor="$3"
     local    spinner
     local -a spinners
     spinners=(⠋ ⠙ ⠹ ⠸ ⠼ ⠴ ⠦ ⠧ ⠇ ⠏)
 
     # hide cursor
-    tput civis
+    if [[ $cursor -ne 0 ]]; then
+        tput cnorm || true
+    else
+        tput civis
+    fi
 
     while true
     do
@@ -82,6 +87,10 @@ execute()
                 errors+=( "$2" )
                 shift
                 ;;
+            --cursor)
+                cursor="$2"
+                shift
+                ;;
             -*|--*)
                 return 1
                 ;;
@@ -117,7 +126,8 @@ execute()
 
     spin \
         "$title" \
-        "$title [$fg[green]SUCCEEDED$reset_color]"
+        "$title [$fg[green]SUCCEEDED$reset_color]" \
+        "$cursor"
 
     if [[ $status -ne 0 ]]; then
 	printf "\033[2K" 2>/dev/null
@@ -160,6 +170,8 @@ change_default_shell()
 execute \
     --title \
     "Checking if your zsh version is newer than 4.1.9" \
+    --cursor \
+    0
     "sleep 1" \
     "is-at-least 4.1.9"
 
@@ -170,11 +182,15 @@ execute \
     "Is git installed?" \
     --error \
     "Does '$YADM_HOME' already exist?" \
+    --cursor \
+    0
     yadm_check
 
 execute \
     --title \
     "Backing up .zshrc config file" \
+    --cursor \
+    0
     bkp_zshrc
 
 execute \
@@ -184,6 +200,8 @@ execute \
     "Is YADM installed?" \
     --error \
     "Does '$YADM_DIR' already exist?" \
+    --cursor \
+    0
     "yadm -Y $YADM_DIR clone https://github.com/iraquitan/dotfiles.git --bootstrap"
 
 execute \
@@ -191,11 +209,15 @@ execute \
     "Installing vim plugins with Vim Plug" \
     --error \
     "Is Vim Plug installed?" \
+    --cursor \
+    0
     "vim +PlugInstall +qall"
 
 execute \
     --title \
     "Setting zsh as default shell" \
+    --cursor \
+    1
     change_default_shell
 
 printf " All processes are successfully completed \U1F389\n"
