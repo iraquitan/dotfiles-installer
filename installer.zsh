@@ -149,7 +149,7 @@ bkp_zshrc()
 
 change_default_shell()
 {
-    if [! $0 = "-zsh"]; then
+    if [ ! $0 = "-zsh" ]; then
         echo 'Changing default shell to zsh'
         chsh -s /bin/zsh
     else
