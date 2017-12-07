@@ -190,7 +190,7 @@ rm_config()
 rm_share_data()
 {
     echo "Removing ~/.local/share dirs"
-    for local_s in yadm yadm_project
+    for local_s in yadm yadm_project dracula-theme
     do
         rm -rf $XDG_DATA_HOME/$local_s
     done
