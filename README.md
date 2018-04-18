@@ -1,9 +1,17 @@
 # The installer for [iraquitan/dotfiles](https://github.com/iraquitan/dotfiles)
 
+## Install
 To setup these dotfiles to your system, run this command:
 
 ```zsh
 $ curl -sL --proto-redir -all,https https://raw.githubusercontent.com/iraquitan/dotfiles-installer/master/installer.zsh | zsh
+```
+
+## Uninstall
+To uninstall these dotfiles run this command:
+
+```zsh
+$ curl -sL --proto-redir -all,https https://raw.githubusercontent.com/iraquitan/dotfiles-installer/master/uninstaller.zsh | zsh
 ```
 
 **Things to do**
